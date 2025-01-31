@@ -14,7 +14,16 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
   imports: [CommonModule, MatTableModule, MatPaginatorModule, ProductComponent],
   template: `
     <div class="category-container">
-      <h2>Categories</h2>
+      <div class="header">
+        <h2>Categories</h2>
+        @if (!loading() && !error()) {
+          <mat-paginator 
+            [pageSize]="5"
+            [pageSizeOptions]="[5]"
+            showFirstLastButtons>
+          </mat-paginator>
+        }
+      </div>
 
       @if (loading()) {
         <div class="loading">
@@ -68,12 +77,6 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
                 [class.hidden]="category.CategoryID !== selectedCategoryId()">
             </tr>
           </table>
-
-          <mat-paginator 
-            [pageSize]="5"
-            [pageSizeOptions]="[5]"
-            showFirstLastButtons>
-          </mat-paginator>
         </div>
       }
     </div>
@@ -81,9 +84,32 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
   styles: [`
     .category-container {
       padding: 20px;
-      height: calc(100vh - 100px); /* Subtract header height and some padding */
+      height: calc(100vh - 100px);
       display: flex;
       flex-direction: column;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex: 0 0 auto;
+    }
+    .header h2 {
+      margin: 0;
+    }
+    ::ng-deep .header .mat-mdc-paginator {
+      background: transparent;
+      min-height: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+    }
+    ::ng-deep .header .mat-mdc-paginator-container {
+      min-height: 48px;
+      height: 48px;
+      padding: 0;
+      justify-content: flex-end;
     }
     h2 {
       margin-top: 0;
