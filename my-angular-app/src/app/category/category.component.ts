@@ -7,17 +7,21 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ProductComponent } from '../product/product.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AddCategoryDialogComponent } from '../add-category-dialog/add-category-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, ProductComponent],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, ProductComponent, MatDialogModule, MatButtonModule],
   template: `
     <div class="category-container">
       <div class="header">
         <h2>Categories</h2>
+        <button mat-raised-button color="primary" (click)="openAddCategoryDialog()">Add Category</button>
         @if (!loading() && !error()) {
-          <mat-paginator 
+          <mat-paginator
             [pageSize]="5"
             [pageSizeOptions]="[5]"
             showFirstLastButtons>
@@ -72,7 +76,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
                 [class.expanded-row]="category.CategoryID === selectedCategoryId()"
                 (click)="selectCategory(category)">
             </tr>
-            <tr mat-row *matRowDef="let category; columns: ['expandedDetail']" 
+            <tr mat-row *matRowDef="let category; columns: ['expandedDetail']"
                 class="detail-row"
                 [class.hidden]="category.CategoryID !== selectedCategoryId()">
             </tr>
@@ -140,7 +144,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
       z-index: 1;
       background: white;
     }
-    td.mat-column-CategoryName, 
+    td.mat-column-CategoryName,
     td.mat-column-Description {
       padding: 0 16px;
       white-space: nowrap;
@@ -286,7 +290,7 @@ export class CategoryComponent implements OnInit {
     }
   }
 
-  constructor() {
+  constructor(private dialog: MatDialog) {
     this.dataSource = new MatTableDataSource<Category>([]);
   }
 
@@ -313,6 +317,16 @@ export class CategoryComponent implements OnInit {
       error: () => {
         this.error.set('Failed to load categories. Please try again.');
         this.loading.set(false);
+      }
+    });
+  }
+
+  openAddCategoryDialog() {
+    const dialogRef = this.dialog.open(AddCategoryDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadCategories();
       }
     });
   }
