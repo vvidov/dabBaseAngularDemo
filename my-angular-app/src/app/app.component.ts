@@ -5,9 +5,15 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  template: `
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  `,
+  styles: [`
+    main {
+      min-height: 100vh;
+    }
+  `]
 })
-export class AppComponent {
-  title = 'my-angular-app';
-}
+export class AppComponent {}
