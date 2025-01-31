@@ -70,14 +70,17 @@ import { MatTableDataSource } from '@angular/material/table';
   `,
   styles: [`
     .product-container {
-      padding: 20px;
+      padding: 0;
     }
     table {
       width: 100%;
+      background: transparent;
     }
     .mat-elevation-z8 {
       overflow: hidden;
       border-radius: 4px;
+      background: white;
+      box-shadow: none;
     }
     .loading {
       text-align: center;
@@ -109,6 +112,9 @@ import { MatTableDataSource } from '@angular/material/table';
       border: none;
       border-radius: 4px;
       cursor: pointer;
+    }
+    tr.mat-row:hover {
+      background: rgba(0, 0, 0, 0.02);
     }
   `]
 })

@@ -6,6 +6,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ProductComponent } from '../product/product.component';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-category',
@@ -31,21 +32,41 @@ import { ProductComponent } from '../product/product.component';
 
       @if (!loading() && !error()) {
         <div class="mat-elevation-z8">
-          <table mat-table [dataSource]="dataSource">
+          <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
             <!-- Category Name Column -->
             <ng-container matColumnDef="CategoryName">
               <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let category" (click)="selectCategory(category)">{{ category.CategoryName }}</td>
+              <td mat-cell *matCellDef="let category">{{ category.CategoryName }}</td>
             </ng-container>
 
             <!-- Description Column -->
             <ng-container matColumnDef="Description">
               <th mat-header-cell *matHeaderCellDef>Description</th>
-              <td mat-cell *matCellDef="let category" (click)="selectCategory(category)">{{ category.Description }}</td>
+              <td mat-cell *matCellDef="let category">{{ category.Description }}</td>
+            </ng-container>
+
+            <!-- Expanded Content Column -->
+            <ng-container matColumnDef="expandedDetail">
+              <td mat-cell *matCellDef="let category" [attr.colspan]="displayedColumns.length">
+                @if (category.CategoryID === selectedCategoryId()) {
+                  <div class="category-detail"
+                       [@detailExpand]="'expanded'">
+                    <app-product [categoryId]="category.CategoryID"></app-product>
+                  </div>
+                }
+              </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.selected-row]="row.CategoryID === selectedCategoryId()"></tr>
+            <tr mat-row *matRowDef="let category; columns: displayedColumns;"
+                class="category-row"
+                [class.expanded-row]="category.CategoryID === selectedCategoryId()"
+                (click)="selectCategory(category)">
+            </tr>
+            <tr mat-row *matRowDef="let category; columns: ['expandedDetail']" 
+                class="detail-row"
+                [class.hidden]="category.CategoryID !== selectedCategoryId()">
+            </tr>
           </table>
 
           <mat-paginator 
@@ -54,10 +75,6 @@ import { ProductComponent } from '../product/product.component';
             showFirstLastButtons>
           </mat-paginator>
         </div>
-
-        @if (selectedCategoryId()) {
-          <app-product [categoryId]="selectedCategoryId()"></app-product>
-        }
       }
     </div>
   `,
@@ -71,7 +88,6 @@ import { ProductComponent } from '../product/product.component';
     .mat-elevation-z8 {
       overflow: hidden;
       border-radius: 4px;
-      margin-bottom: 20px;
     }
     .loading {
       text-align: center;
@@ -104,16 +120,44 @@ import { ProductComponent } from '../product/product.component';
       border-radius: 4px;
       cursor: pointer;
     }
-    tr.mat-row {
+    tr.category-row {
       cursor: pointer;
     }
-    tr.mat-row:hover {
+    tr.category-row:hover {
       background: rgba(0, 0, 0, 0.04);
     }
-    tr.selected-row {
-      background: rgba(0, 0, 0, 0.08);
+    tr.category-row.expanded-row {
+      background: rgba(0, 0, 0, 0.04);
+      border-left: 4px solid #3498db;
     }
-  `]
+    .category-detail {
+      overflow: hidden;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.04);
+      border-left: 4px solid #3498db;
+      min-height: 0;
+      display: flex;
+    }
+    tr.detail-row {
+      height: 0;
+    }
+    tr.detail-row.hidden {
+      display: none;
+    }
+    tr.category-row:not(.expanded-row):hover {
+      background: whitesmoke;
+    }
+    tr.category-row:not(.expanded-row):active {
+      background: #efefef;
+    }
+  `],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class CategoryComponent implements OnInit {
   categoryService = inject(CategoryService);
@@ -140,7 +184,9 @@ export class CategoryComponent implements OnInit {
   }
 
   selectCategory(category: Category) {
-    this.selectedCategoryId.set(category.CategoryID);
+    this.selectedCategoryId.set(
+      this.selectedCategoryId() === category.CategoryID ? undefined : category.CategoryID
+    );
   }
 
   loadCategories() {
