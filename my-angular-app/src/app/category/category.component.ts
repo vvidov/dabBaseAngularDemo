@@ -1,12 +1,15 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CategoryService } from '../services/category.service';
 import { Category } from '../models/category.model';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule],
   template: `
     <div class="category-container">
       <h2>Categories</h2>
@@ -25,20 +28,30 @@ import { Category } from '../models/category.model';
         </div>
       }
 
-      @if (!loading() && !error() && categories().length === 0) {
-        <div class="no-data">
-          <p>No categories available</p>
-        </div>
-      }
+      @if (!loading() && !error()) {
+        <div class="mat-elevation-z8">
+          <table mat-table [dataSource]="dataSource">
+            <!-- Category Name Column -->
+            <ng-container matColumnDef="CategoryName">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let category">{{ category.CategoryName }}</td>
+            </ng-container>
 
-      @if (!loading() && !error() && categories().length > 0) {
-        <div class="category-list">
-          @for (category of categories(); track category.CategoryID) {
-            <div class="category-item">
-              <h3>{{ category.CategoryName }}</h3>
-              <p>{{ category.Description }}</p>
-            </div>
-          }
+            <!-- Description Column -->
+            <ng-container matColumnDef="Description">
+              <th mat-header-cell *matHeaderCellDef>Description</th>
+              <td mat-cell *matCellDef="let category">{{ category.Description }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <mat-paginator 
+            [pageSize]="5"
+            [pageSizeOptions]="[5]"
+            showFirstLastButtons>
+          </mat-paginator>
         </div>
       }
     </div>
@@ -47,22 +60,12 @@ import { Category } from '../models/category.model';
     .category-container {
       padding: 20px;
     }
-    .category-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
+    table {
+      width: 100%;
     }
-    .category-item {
-      padding: 15px;
-      border: 1px solid #ddd;
+    .mat-elevation-z8 {
+      overflow: hidden;
       border-radius: 4px;
-      background-color: #f8f9fa;
-      transition: transform 0.2s;
-    }
-    .category-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .loading {
       text-align: center;
@@ -95,12 +98,6 @@ import { Category } from '../models/category.model';
       border-radius: 4px;
       cursor: pointer;
     }
-    .no-data {
-      text-align: center;
-      padding: 2rem;
-      background: #f8f9fa;
-      border-radius: 8px;
-    }
   `]
 })
 export class CategoryComponent implements OnInit {
@@ -109,25 +106,36 @@ export class CategoryComponent implements OnInit {
   loading = signal(false);
   error = signal('');
 
-ngOnInit():void {
-  this.loadCategories();
-}
+  displayedColumns: string[] = ['CategoryName', 'Description'];
+  dataSource: MatTableDataSource<Category>;
+
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    if (paginator && this.dataSource) {
+      this.dataSource.paginator = paginator;
+    }
+  }
+
+  constructor() {
+    this.dataSource = new MatTableDataSource<Category>([]);
+  }
+
+  ngOnInit(): void {
+    this.loadCategories();
+  }
 
   loadCategories() {
-    this.loading.set(true);;
-    this.error.set('');;
+    this.loading.set(true);
+    this.error.set('');
 
     this.categoryService.getCategories().subscribe({
-      next: (data:{value: Array<Category>} ) => {
-        console.log('Categories data:', data.value.length);
+      next: (data: { value: Array<Category> }) => {
         this.categories.set(data.value);
-        console.log('Categories array:', this.categories);
-        console.log('Categories length:', this.categories.length);
+        this.dataSource.data = data.value;
         this.loading.set(false);
       },
       error: () => {
         this.error.set('Failed to load categories. Please try again.');
-        this.loading.set(false);;
+        this.loading.set(false);
       }
     });
   }
