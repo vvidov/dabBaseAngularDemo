@@ -81,36 +81,63 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
   styles: [`
     .category-container {
       padding: 20px;
+      height: calc(100vh - 100px); /* Subtract header height and some padding */
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      flex: 0 0 auto;
+    }
+    .mat-elevation-z8 {
+      overflow: auto;
+      border-radius: 4px;
+      flex: 1;
+      min-height: 0;
     }
     table {
       width: 100%;
       table-layout: fixed;
     }
-    .name-column {
-      width: 200px;
-      padding-right: 24px;
-      position: relative;
+    .mat-mdc-table {
+      border-spacing: 0;
+      background: transparent;
     }
-    .description-column {
-      width: calc(100% - 200px);
-      position: relative;
+    .mat-mdc-row {
+      height: 48px;
+    }
+    .mat-mdc-header-row {
+      height: 48px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: white;
     }
     td.mat-column-CategoryName, 
     td.mat-column-Description {
-      padding: 12px 16px;
+      padding: 0 16px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      height: 48px;
+      line-height: 48px;
     }
-    .category-detail {
-      overflow: hidden;
+    th.mat-header-cell {
+      padding: 0 16px;
+      height: 48px;
+      line-height: 48px;
+    }
+    tr.category-row {
+      cursor: pointer;
+      height: 48px;
+    }
+    tr.category-row:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    tr.category-row.expanded-row {
       background: rgba(0, 0, 0, 0.04);
       border-left: 4px solid #3498db;
-      min-height: 0;
-      display: flex;
-      transform-origin: top;
-      position: relative;
-      width: 100%;
     }
     tr.detail-row {
       height: 0;
@@ -118,29 +145,39 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
     tr.detail-row.hidden {
       display: none;
     }
-    tr.category-row:not(.expanded-row):hover {
-      background: whitesmoke;
-    }
-    tr.category-row:not(.expanded-row):active {
-      background: #efefef;
-    }
-    .mat-mdc-row .mat-mdc-cell {
-      border-bottom: 1px solid transparent;
-      border-top: 1px solid transparent;
-    }
-    .mat-mdc-table {
-      border-spacing: 0;
-      background: transparent;
-    }
-    .mat-mdc-header-row {
-      background: white;
-    }
-    .mat-mdc-row:not(.detail-row) {
-      background: white;
-    }
     .mat-elevation-z8 {
       overflow: hidden;
       border-radius: 4px;
+    }
+    ::ng-deep .mat-mdc-paginator {
+      min-height: 56px;
+      height: 56px;
+      overflow: hidden;
+    }
+    ::ng-deep .mat-mdc-paginator-container {
+      min-height: 56px;
+      height: 56px;
+      padding: 0 8px;
+      justify-content: flex-end;
+    }
+    ::ng-deep .mat-mdc-paginator-range-label {
+      margin: 0 16px;
+    }
+    ::ng-deep .mat-mdc-paginator-navigation-container {
+      display: flex;
+      align-items: center;
+    }
+    ::ng-deep .mat-mdc-icon-button {
+      position: relative;
+      overflow: hidden;
+    }
+    ::ng-deep .mat-mdc-icon-button .mat-mdc-button-ripple {
+      overflow: hidden;
+    }
+    ::ng-deep .mat-mdc-paginator-navigation-previous,
+    ::ng-deep .mat-mdc-paginator-navigation-next {
+      margin: 0 4px;
+      overflow: hidden;
     }
     .loading {
       text-align: center;
@@ -172,16 +209,6 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
       border: none;
       border-radius: 4px;
       cursor: pointer;
-    }
-    tr.category-row {
-      cursor: pointer;
-    }
-    tr.category-row:hover {
-      background: rgba(0, 0, 0, 0.04);
-    }
-    tr.category-row.expanded-row {
-      background: rgba(0, 0, 0, 0.04);
-      border-left: 4px solid #3498db;
     }
   `],
   animations: [

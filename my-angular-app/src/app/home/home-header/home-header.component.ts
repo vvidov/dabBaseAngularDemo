@@ -12,9 +12,18 @@ import { Component } from '@angular/core';
   styles: [`
     .home-header {
       background-color: #f8f9fa;
-      padding: 2rem;
+      padding: 1rem;
       text-align: center;
       border-bottom: 1px solid #e9ecef;
+    }
+    .home-header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.5rem;
+    }
+    .home-header p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #6c757d;
     }
   `]
 })
