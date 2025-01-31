@@ -35,14 +35,14 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
           <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
             <!-- Category Name Column -->
             <ng-container matColumnDef="CategoryName">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let category">{{ category.CategoryName }}</td>
+              <th mat-header-cell *matHeaderCellDef class="name-column">Name</th>
+              <td mat-cell *matCellDef="let category" class="name-column">{{ category.CategoryName }}</td>
             </ng-container>
 
             <!-- Description Column -->
             <ng-container matColumnDef="Description">
-              <th mat-header-cell *matHeaderCellDef>Description</th>
-              <td mat-cell *matCellDef="let category">{{ category.Description }}</td>
+              <th mat-header-cell *matHeaderCellDef class="description-column">Description</th>
+              <td mat-cell *matCellDef="let category" class="description-column">{{ category.Description }}</td>
             </ng-container>
 
             <!-- Expanded Content Column -->
@@ -50,7 +50,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
               <td mat-cell *matCellDef="let category" [attr.colspan]="displayedColumns.length">
                 @if (category.CategoryID === selectedCategoryId()) {
                   <div class="category-detail"
-                       [@detailExpand]="'expanded'">
+                       [@detailExpand]>
                     <app-product [categoryId]="category.CategoryID"></app-product>
                   </div>
                 }
@@ -84,6 +84,59 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
     }
     table {
       width: 100%;
+      table-layout: fixed;
+    }
+    .name-column {
+      width: 200px;
+      padding-right: 24px;
+      position: relative;
+    }
+    .description-column {
+      width: calc(100% - 200px);
+      position: relative;
+    }
+    td.mat-column-CategoryName, 
+    td.mat-column-Description {
+      padding: 12px 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .category-detail {
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.04);
+      border-left: 4px solid #3498db;
+      min-height: 0;
+      display: flex;
+      transform-origin: top;
+      position: relative;
+      width: 100%;
+    }
+    tr.detail-row {
+      height: 0;
+    }
+    tr.detail-row.hidden {
+      display: none;
+    }
+    tr.category-row:not(.expanded-row):hover {
+      background: whitesmoke;
+    }
+    tr.category-row:not(.expanded-row):active {
+      background: #efefef;
+    }
+    .mat-mdc-row .mat-mdc-cell {
+      border-bottom: 1px solid transparent;
+      border-top: 1px solid transparent;
+    }
+    .mat-mdc-table {
+      border-spacing: 0;
+      background: transparent;
+    }
+    .mat-mdc-header-row {
+      background: white;
+    }
+    .mat-mdc-row:not(.detail-row) {
+      background: white;
     }
     .mat-elevation-z8 {
       overflow: hidden;
@@ -130,33 +183,38 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
       background: rgba(0, 0, 0, 0.04);
       border-left: 4px solid #3498db;
     }
-    .category-detail {
-      overflow: hidden;
-      padding: 16px;
-      background: rgba(0, 0, 0, 0.04);
-      border-left: 4px solid #3498db;
-      min-height: 0;
-      display: flex;
-    }
-    tr.detail-row {
-      height: 0;
-    }
-    tr.detail-row.hidden {
-      display: none;
-    }
-    tr.category-row:not(.expanded-row):hover {
-      background: whitesmoke;
-    }
-    tr.category-row:not(.expanded-row):active {
-      background: #efefef;
-    }
   `],
   animations: [
     trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-    ]),
+      state('void', style({
+        height: '0',
+        opacity: '0',
+        transform: 'translateY(-10px)',
+        padding: '0 16px'
+      })),
+      state('expanded', style({
+        height: '*',
+        opacity: '1',
+        transform: 'translateY(0)',
+        padding: '16px'
+      })),
+      transition('void => expanded', [
+        animate('300ms cubic-bezier(0.4, 0.0, 0.2, 1)', style({
+          height: '*',
+          opacity: '1',
+          transform: 'translateY(0)',
+          padding: '16px'
+        }))
+      ]),
+      transition('expanded => void', [
+        animate('250ms cubic-bezier(0.4, 0.0, 0.2, 1)', style({
+          height: '0',
+          opacity: '0',
+          transform: 'translateY(-10px)',
+          padding: '0 16px'
+        }))
+      ])
+    ])
   ],
 })
 export class CategoryComponent implements OnInit {

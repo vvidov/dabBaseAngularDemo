@@ -33,26 +33,26 @@ import { MatTableDataSource } from '@angular/material/table';
           <table mat-table [dataSource]="dataSource">
             <!-- Product Name Column -->
             <ng-container matColumnDef="ProductName">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let product">{{ product.ProductName }}</td>
+              <th mat-header-cell *matHeaderCellDef class="name-column">Name</th>
+              <td mat-cell *matCellDef="let product" class="name-column">{{ product.ProductName }}</td>
             </ng-container>
 
             <!-- Unit Price Column -->
             <ng-container matColumnDef="UnitPrice">
-              <th mat-header-cell *matHeaderCellDef>Price</th>
-              <td mat-cell *matCellDef="let product">{{ product.UnitPrice | currency }}</td>
+              <th mat-header-cell *matHeaderCellDef class="price-column">Price</th>
+              <td mat-cell *matCellDef="let product" class="price-column">{{ product.UnitPrice | currency }}</td>
             </ng-container>
 
             <!-- Units In Stock Column -->
             <ng-container matColumnDef="UnitsInStock">
-              <th mat-header-cell *matHeaderCellDef>Stock</th>
-              <td mat-cell *matCellDef="let product">{{ product.UnitsInStock }}</td>
+              <th mat-header-cell *matHeaderCellDef class="stock-column">Stock</th>
+              <td mat-cell *matCellDef="let product" class="stock-column">{{ product.UnitsInStock }}</td>
             </ng-container>
 
             <!-- Quantity Per Unit Column -->
             <ng-container matColumnDef="QuantityPerUnit">
-              <th mat-header-cell *matHeaderCellDef>Quantity Per Unit</th>
-              <td mat-cell *matCellDef="let product">{{ product.QuantityPerUnit }}</td>
+              <th mat-header-cell *matHeaderCellDef class="quantity-column">Quantity Per Unit</th>
+              <td mat-cell *matCellDef="let product" class="quantity-column">{{ product.QuantityPerUnit }}</td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -74,6 +74,7 @@ import { MatTableDataSource } from '@angular/material/table';
     }
     table {
       width: 100%;
+      table-layout: fixed;
       background: transparent;
     }
     .mat-elevation-z8 {
@@ -115,6 +116,27 @@ import { MatTableDataSource } from '@angular/material/table';
     }
     tr.mat-row:hover {
       background: rgba(0, 0, 0, 0.02);
+    }
+    .name-column {
+      width: 30%;
+    }
+    .price-column {
+      width: 15%;
+    }
+    .stock-column {
+      width: 15%;
+    }
+    .quantity-column {
+      width: 40%;
+    }
+    td.mat-column-ProductName,
+    td.mat-column-UnitPrice,
+    td.mat-column-UnitsInStock,
+    td.mat-column-QuantityPerUnit {
+      padding: 12px 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   `]
 })
