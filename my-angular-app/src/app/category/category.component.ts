@@ -5,11 +5,12 @@ import { Category } from '../models/category.model';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { ProductComponent } from '../product/product.component';
 
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, ProductComponent],
   template: `
     <div class="category-container">
       <h2>Categories</h2>
@@ -34,17 +35,17 @@ import { MatTableDataSource } from '@angular/material/table';
             <!-- Category Name Column -->
             <ng-container matColumnDef="CategoryName">
               <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let category">{{ category.CategoryName }}</td>
+              <td mat-cell *matCellDef="let category" (click)="selectCategory(category)">{{ category.CategoryName }}</td>
             </ng-container>
 
             <!-- Description Column -->
             <ng-container matColumnDef="Description">
               <th mat-header-cell *matHeaderCellDef>Description</th>
-              <td mat-cell *matCellDef="let category">{{ category.Description }}</td>
+              <td mat-cell *matCellDef="let category" (click)="selectCategory(category)">{{ category.Description }}</td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.selected-row]="row.CategoryID === selectedCategoryId()"></tr>
           </table>
 
           <mat-paginator 
@@ -53,6 +54,10 @@ import { MatTableDataSource } from '@angular/material/table';
             showFirstLastButtons>
           </mat-paginator>
         </div>
+
+        @if (selectedCategoryId()) {
+          <app-product [categoryId]="selectedCategoryId()"></app-product>
+        }
       }
     </div>
   `,
@@ -66,6 +71,7 @@ import { MatTableDataSource } from '@angular/material/table';
     .mat-elevation-z8 {
       overflow: hidden;
       border-radius: 4px;
+      margin-bottom: 20px;
     }
     .loading {
       text-align: center;
@@ -98,6 +104,15 @@ import { MatTableDataSource } from '@angular/material/table';
       border-radius: 4px;
       cursor: pointer;
     }
+    tr.mat-row {
+      cursor: pointer;
+    }
+    tr.mat-row:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    tr.selected-row {
+      background: rgba(0, 0, 0, 0.08);
+    }
   `]
 })
 export class CategoryComponent implements OnInit {
@@ -105,6 +120,7 @@ export class CategoryComponent implements OnInit {
   categories = signal<Array<Category>>([]);
   loading = signal(false);
   error = signal('');
+  selectedCategoryId = signal<number | undefined>(undefined);
 
   displayedColumns: string[] = ['CategoryName', 'Description'];
   dataSource: MatTableDataSource<Category>;
@@ -121,6 +137,10 @@ export class CategoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+  }
+
+  selectCategory(category: Category) {
+    this.selectedCategoryId.set(category.CategoryID);
   }
 
   loadCategories() {
