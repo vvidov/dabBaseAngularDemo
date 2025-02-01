@@ -8,7 +8,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ProductComponent } from '../product/product.component';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AddCategoryDialogComponent } from '../add-category-dialog/add-category-dialog.component';
+import { EditCategoryDialogComponent} from '../edit-category-dialog/edit-category-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -322,7 +322,7 @@ export class CategoryComponent implements OnInit {
   }
 
   openAddCategoryDialog() {
-    const dialogRef = this.dialog.open(AddCategoryDialogComponent);
+    const dialogRef = this.dialog.open(EditCategoryDialogComponent);
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
