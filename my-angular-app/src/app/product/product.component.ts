@@ -58,19 +58,20 @@ import { MatTableDataSource } from '@angular/material/table';
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
-
-          <mat-paginator 
-            [pageSize]="5"
-            [pageSizeOptions]="[5]"
-            showFirstLastButtons>
-          </mat-paginator>
+        <mat-paginator class="mat-paginator"
+          [pageSize]="5"
+          [pageSizeOptions]="[5]"
+          showFirstLastButtons>
+        </mat-paginator>
         </div>
       }
     </div>
   `,
   styles: [`
     .product-container {
-      padding: 0;
+      height: 430px;
+      padding: 16px;
+      position: relative;
     }
     table {
       width: 100%;
@@ -138,11 +139,17 @@ import { MatTableDataSource } from '@angular/material/table';
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .mat-paginator {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+
   `]
 })
 export class ProductComponent implements OnInit {
   @Input() categoryId?: number;
-  
+
   productService = inject(ProductService);
   products = signal<Array<Product>>([]);
   loading = signal(false);
@@ -172,10 +179,10 @@ export class ProductComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (data: { value: Array<Product> }) => {
         // Filter products by category if categoryId is provided
-        const filteredProducts = this.categoryId 
+        const filteredProducts = this.categoryId
           ? data.value.filter(p => p.CategoryID === this.categoryId)
           : data.value;
-          
+
         this.products.set(filteredProducts);
         this.dataSource.data = filteredProducts;
         this.loading.set(false);
