@@ -12,7 +12,7 @@ import { MatTableDataSource } from '@angular/material/table';
   imports: [CommonModule, MatTableModule, MatPaginatorModule],
   template: `
     <div class="product-container">
-      <h2>Products {{ categoryId ? 'for Category ' + categoryId : '' }}</h2>
+      <h2>Products {{ categoryName ? 'for Category ' + categoryName : '' }}</h2>
 
       @if (loading()) {
         <div class="loading">
@@ -149,6 +149,7 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class ProductComponent implements OnInit {
   @Input() categoryId?: number;
+  @Input() categoryName?: string;
 
   productService = inject(ProductService);
   products = signal<Array<Product>>([]);

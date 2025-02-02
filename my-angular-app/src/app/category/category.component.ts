@@ -64,7 +64,7 @@ import { MatButtonModule } from '@angular/material/button';
                 @if (category.CategoryID === selectedCategoryId()) {
                   <div class="category-detail"
                        [@detailExpand]>
-                    <app-product [categoryId]="category.CategoryID"></app-product>
+                    <app-product [categoryId]="category.CategoryID" [categoryName]="category.CategoryName"></app-product>
                   </div>
                 }
               </td>
