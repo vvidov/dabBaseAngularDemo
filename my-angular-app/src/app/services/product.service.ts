@@ -22,8 +22,16 @@ export class ProductService {
     return this.http.post<Product>(this.apiUrl, product);
   }
 
-  addProduct(product: Product): Observable<Product> {
-    return this.http.post<Product>(this.apiUrl, product);
+  addProduct(product: Omit<Product, 'ProductID'>): Observable<Product> {
+    const payload = {
+      ProductName: product.ProductName,
+      UnitPrice: product.UnitPrice,
+      UnitsInStock: product.UnitsInStock,
+      QuantityPerUnit: product.QuantityPerUnit,
+      CategoryID: product.CategoryID,
+      Discontinued: product.Discontinued
+    };
+    return this.http.post<Product>(this.apiUrl, payload);
   }
 
   updateProduct(product: Product): Observable<Product> {
