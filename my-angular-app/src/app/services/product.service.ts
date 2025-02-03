@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 import { Product } from '../models/product.model';
 
 @Injectable({
@@ -9,6 +9,8 @@ import { Product } from '../models/product.model';
 export class ProductService {
   private apiUrl = 'http://localhost:8080/api/products';  // API endpoint for products
   http = inject(HttpClient);
+  private productChanges = new Subject<void>();
+  productChanges$ = this.productChanges.asObservable();
 
   getProducts(): Observable<{ value: Array<Product> }> {
     return this.http.get<{ value: Array<Product> }>(this.apiUrl);
@@ -31,7 +33,9 @@ export class ProductService {
       CategoryID: product.CategoryID,
       Discontinued: product.Discontinued
     };
-    return this.http.post<Product>(this.apiUrl, payload);
+    return this.http.post<Product>(this.apiUrl, payload).pipe(
+      tap(() => this.productChanges.next())
+    );
   }
 
   updateProduct(product: Product): Observable<Product> {
@@ -46,6 +50,8 @@ export class ProductService {
   }
 
   deleteProduct(productId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/ProductID/${productId}`);
+    return this.http.delete<void>(`${this.apiUrl}/ProductID/${productId}`).pipe(
+      tap(() => this.productChanges.next())
+    );
   }
 }

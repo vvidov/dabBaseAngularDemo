@@ -392,6 +392,11 @@ export class CategoryComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProductCounts();
+
+    // Subscribe to product changes
+    this.productService.productChanges$.subscribe(() => {
+      this.loadProductCounts();
+    });
   }
 
   selectCategory(category: Category) {
