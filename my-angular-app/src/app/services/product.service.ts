@@ -37,7 +37,7 @@ export class ProductService {
     });
   }
 
-  deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteProduct(productId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/ProductID/${productId}`);
   }
 }

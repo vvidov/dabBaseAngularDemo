@@ -9,11 +9,19 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditProductDialogComponent } from '../edit-product-dialog/edit-product-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatIconModule,
+    MatButtonModule,
+    ConfirmDialogComponent
+  ],
   template: `
     <div class="product-container">
       <div class="header">
@@ -67,6 +75,10 @@ import { MatButtonModule } from '@angular/material/button';
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let product">
                 <div class="action-buttons">
+                  <button mat-icon-button color="warn"
+                          (click)="deleteProduct(product); $event.stopPropagation()">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                   <button mat-icon-button color="primary"
                           (click)="openEditProductDialog(product); $event.stopPropagation()">
                     <mat-icon>edit</mat-icon>
@@ -309,6 +321,26 @@ export class ProductComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadProducts();
+      }
+    });
+  }
+
+  deleteProduct(product: Product) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: { title: 'Delete Product', message: 'Are you sure you want to delete this product?' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.productService.deleteProduct(product.ProductID).subscribe({
+          next: () => {
+            this.loadProducts();
+          },
+          error: () => {
+            this.error.set('Failed to delete product');
+          }
+        });
       }
     });
   }
