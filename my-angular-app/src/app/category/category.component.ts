@@ -11,6 +11,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { EditCategoryDialogComponent} from '../edit-category-dialog/edit-category-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ProductService } from '../services/product.service';
 
 @Component({
   selector: 'app-category',
@@ -63,10 +65,18 @@ import { MatIconModule } from '@angular/material/icon';
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let category">
-                <button mat-icon-button color="primary"
-                        (click)="openEditCategoryDialog(category); $event.stopPropagation()">
-                  <mat-icon>edit</mat-icon>
-                </button>
+                <div class="action-buttons">
+                  @if (!hasProducts(category.CategoryID)) {
+                    <button mat-icon-button color="warn"
+                            (click)="deleteCategory(category); $event.stopPropagation()">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                  <button mat-icon-button color="primary"
+                          (click)="openEditCategoryDialog(category); $event.stopPropagation()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
               </td>
             </ng-container>
 
@@ -166,9 +176,11 @@ import { MatIconModule } from '@angular/material/icon';
       line-height: 48px;
     }
     td.mat-column-actions {
-      width: 48px;
+      width: 100px;
       padding-right: 8px;
-      text-align: center;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
     }
     th.mat-header-cell {
       padding: 0 16px;
@@ -178,6 +190,7 @@ import { MatIconModule } from '@angular/material/icon';
     tr.category-row {
       cursor: pointer;
       height: 48px;
+      width: 100%;
     }
     tr.category-row:hover {
       background: rgba(0, 0, 0, 0.04);
@@ -257,6 +270,67 @@ import { MatIconModule } from '@angular/material/icon';
       border-radius: 4px;
       cursor: pointer;
     }
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 8px;
+      height: 100%;
+    }
+    td.mat-column-CategoryName {
+      width: 200px;
+      padding: 0 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    td.mat-column-Description {
+      padding: 0 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    td.mat-column-actions {
+      width: 120px;
+      padding: 0;
+      vertical-align: middle;
+    }
+
+    table {
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .mat-mdc-cell {
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+    .mat-mdc-table {
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .mat-column-CategoryName {
+      width: 200px;
+    }
+
+    .mat-column-Description {
+      width: auto;
+    }
+
+    .mat-column-actions {
+      width: 120px;
+    }
+
+    .mat-icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
   `],
   animations: [
     trigger('detailExpand', [
@@ -292,11 +366,11 @@ import { MatIconModule } from '@angular/material/icon';
   ],
 })
 export class CategoryComponent implements OnInit {
-  categoryService = inject(CategoryService);
   categories = signal<Array<Category>>([]);
   loading = signal(false);
   error = signal('');
   selectedCategoryId = signal<number | undefined>(undefined);
+  categoryProductCount = signal<Record<number, number>>({});
 
   displayedColumns: string[] = ['CategoryName', 'Description', 'actions'];
   dataSource: MatTableDataSource<Category>;
@@ -307,12 +381,17 @@ export class CategoryComponent implements OnInit {
     }
   }
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private categoryService: CategoryService,
+    private productService: ProductService
+  ) {
     this.dataSource = new MatTableDataSource<Category>([]);
   }
 
   ngOnInit(): void {
     this.loadCategories();
+    this.loadProductCounts();
   }
 
   selectCategory(category: Category) {
@@ -338,6 +417,20 @@ export class CategoryComponent implements OnInit {
     });
   }
 
+  loadProductCounts(): void {
+    this.productService.getProducts().subscribe({
+      next: (data: { value: Array<any> }) => {
+        const counts: Record<number, number> = {};
+        data.value.forEach(product => {
+          if (product.CategoryID) {
+            counts[product.CategoryID] = (counts[product.CategoryID] || 0) + 1;
+          }
+        });
+        this.categoryProductCount.set(counts);
+      }
+    });
+  }
+
   openAddCategoryDialog() {
     const dialogRef = this.dialog.open(EditCategoryDialogComponent);
 
@@ -355,6 +448,29 @@ export class CategoryComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadCategories();
+      }
+    });
+  }
+
+  hasProducts(categoryId: number): boolean {
+    return (this.categoryProductCount()[categoryId] || 0) > 0;
+  }
+
+  deleteCategory(category: Category) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.categoryService.deleteCategory(category.CategoryID).subscribe({
+          next: () => {
+            this.loadCategories();
+          },
+          error: () => {
+            this.error.set('Failed to delete category');
+          }
+        });
       }
     });
   }
