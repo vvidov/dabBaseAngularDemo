@@ -458,7 +458,11 @@ export class CategoryComponent implements OnInit {
 
   deleteCategory(category: Category) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '300px'
+      width: '300px',
+      data: {
+        title: 'Delete Category',
+        message: `Are you sure you want to delete category "${category.CategoryName}"?`
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
