@@ -10,11 +10,12 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { EditCategoryDialogComponent} from '../edit-category-dialog/edit-category-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, ProductComponent, MatDialogModule, MatButtonModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, ProductComponent, MatDialogModule, MatButtonModule, MatIconModule],
   template: `
     <div class="category-container">
       <div class="header">
@@ -56,6 +57,17 @@ import { MatButtonModule } from '@angular/material/button';
             <ng-container matColumnDef="Description">
               <th mat-header-cell *matHeaderCellDef class="description-column">Description</th>
               <td mat-cell *matCellDef="let category" class="description-column">{{ category.Description }}</td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let category">
+                <button mat-icon-button color="primary"
+                        (click)="openEditCategoryDialog(category); $event.stopPropagation()">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </td>
             </ng-container>
 
             <!-- Expanded Content Column -->
@@ -152,6 +164,11 @@ import { MatButtonModule } from '@angular/material/button';
       text-overflow: ellipsis;
       height: 48px;
       line-height: 48px;
+    }
+    td.mat-column-actions {
+      width: 48px;
+      padding-right: 8px;
+      text-align: center;
     }
     th.mat-header-cell {
       padding: 0 16px;
@@ -281,7 +298,7 @@ export class CategoryComponent implements OnInit {
   error = signal('');
   selectedCategoryId = signal<number | undefined>(undefined);
 
-  displayedColumns: string[] = ['CategoryName', 'Description'];
+  displayedColumns: string[] = ['CategoryName', 'Description', 'actions'];
   dataSource: MatTableDataSource<Category>;
 
   @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
@@ -323,6 +340,17 @@ export class CategoryComponent implements OnInit {
 
   openAddCategoryDialog() {
     const dialogRef = this.dialog.open(EditCategoryDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadCategories();
+      }
+    });
+  }
+
+  openEditCategoryDialog(category: Category) {
+    const dialogRef = this.dialog.open(EditCategoryDialogComponent);
+    dialogRef.componentInstance.setEditMode(category);
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

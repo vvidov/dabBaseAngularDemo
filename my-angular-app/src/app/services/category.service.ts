@@ -7,7 +7,7 @@ import { Category } from '../models/category.model';
   providedIn: 'root'
 })
 export class CategoryService {
-  private apiUrl = 'http://localhost:8080/api/categories';  // API endpoint for categories
+  private apiUrl = 'http://localhost:8080/api/categories';
   http = inject(HttpClient);
 
   getCategories(): Observable<{ value: Array<Category> }> {
@@ -16,5 +16,18 @@ export class CategoryService {
 
   addCategory(category: Category): Observable<Category> {
     return this.http.post<Category>(this.apiUrl, category);
+  }
+
+  updateCategory(category: Category): Observable<Category> {
+    const url = `${this.apiUrl}/CategoryID/${category.CategoryID}`;
+    return this.http.patch<Category>(url, {
+      CategoryName: category.CategoryName,
+      Description: category.Description,
+      Picture: null
+    });
+  }
+
+  deleteCategory(categoryId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/CategoryID/${categoryId}`);
   }
 }

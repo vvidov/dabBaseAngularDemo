@@ -81,18 +81,34 @@ export class EditCategoryDialogComponent {
 
   onSave(): void {
     if (this.categoryForm.valid) {
-      if (this.isEditMode) {
-        // Update category logic here
-      } else {
-        this.categoryService.addCategory(this.categoryForm.value).subscribe(() => {
+      const formValue = this.categoryForm.value;
+      const category: Category = {
+        CategoryID: formValue.CategoryID!, // Add ! to assert non-null
+        CategoryName: formValue.CategoryName!,
+        Description: formValue.Description!
+      };
+
+      const operation = this.isEditMode
+        ? this.categoryService.updateCategory(category)
+        : this.categoryService.addCategory(category);
+
+      operation.subscribe({
+        next: () => {
           this.dialogRef.close(true);
-        });
-      }
+        },
+        error: (error) => {
+          console.error('Error saving category:', error);
+        }
+      });
     }
   }
 
   setEditMode(category: Category): void {
     this.isEditMode = true;
-    this.categoryForm.patchValue(category);
+    this.categoryForm = this.fb.group({
+      CategoryID: [category.CategoryID],  // Add CategoryID to form
+      CategoryName: [category.CategoryName, Validators.required],
+      Description: [category.Description, Validators.required]
+    });
   }
 }
