@@ -5,14 +5,21 @@ import { Product } from '../models/product.model';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { EditProductDialogComponent } from '../edit-product-dialog/edit-product-dialog.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule],
   template: `
     <div class="product-container">
-      <h2>Products {{ categoryName ? 'for Category ' + categoryName : '' }}</h2>
+      <div class="header">
+        <h2>Products {{ categoryName ? 'for Category ' + categoryName : '' }}</h2>
+        <button mat-raised-button color="primary" (click)="openAddProductDialog()">Add Product</button>
+      </div>
 
       @if (loading()) {
         <div class="loading">
@@ -55,6 +62,19 @@ import { MatTableDataSource } from '@angular/material/table';
               <td mat-cell *matCellDef="let product" class="quantity-column">{{ product.QuantityPerUnit }}</td>
             </ng-container>
 
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let product">
+                <div class="action-buttons">
+                  <button mat-icon-button color="primary"
+                          (click)="openEditProductDialog(product); $event.stopPropagation()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
@@ -68,6 +88,25 @@ import { MatTableDataSource } from '@angular/material/table';
     </div>
   `,
   styles: [`
+    :host {
+      background-color: rgba(0, 0, 0, 0.04);
+      display: block;
+      padding: 16px;
+      border-radius: 4px;
+    }
+
+    .mat-mdc-row {
+      transition: background-color 0.3s ease;
+    }
+
+    .mat-mdc-row:hover {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+
+    .mat-elevation-z8 {
+      background-color: transparent;
+    }
+
     .product-container {
       height: 430px;
       padding: 16px;
@@ -144,19 +183,70 @@ import { MatTableDataSource } from '@angular/material/table';
       bottom: 0;
       right: 0;
     }
+    .mat-column-actions {
+      width: 120px;
+      padding: 0;
+      vertical-align: middle;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 8px;
+      height: 100%;
+    }
+    .mat-icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mat-mdc-row:nth-child(even) {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
 
+    .mat-mdc-row:nth-child(odd) {
+      background-color: #ffffff;
+    }
+
+    .mat-mdc-row:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .mat-paginator {
+      background-color: transparent;
+    }
+
+    :host ::ng-deep .mat-mdc-paginator {
+      background-color: transparent;
+    }
+
+    .mat-mdc-header-row {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    th.mat-mdc-header-cell {
+      color: rgba(0, 0, 0, 0.87);
+      font-weight: 500;
+    }
   `]
 })
 export class ProductComponent implements OnInit {
   @Input() categoryId?: number;
   @Input() categoryName?: string;
 
-  productService = inject(ProductService);
   products = signal<Array<Product>>([]);
   loading = signal(false);
   error = signal('');
 
-  displayedColumns: string[] = ['ProductName', 'UnitPrice', 'UnitsInStock', 'QuantityPerUnit'];
+  displayedColumns: string[] = ['ProductName', 'UnitPrice', 'UnitsInStock', 'QuantityPerUnit', 'actions'];
   dataSource: MatTableDataSource<Product>;
 
   @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
@@ -165,7 +255,10 @@ export class ProductComponent implements OnInit {
     }
   }
 
-  constructor() {
+  constructor(
+    private dialog: MatDialog,
+    private productService: ProductService  // Keep only this declaration
+  ) {
     this.dataSource = new MatTableDataSource<Product>([]);
   }
 
@@ -191,6 +284,31 @@ export class ProductComponent implements OnInit {
       error: () => {
         this.error.set('Failed to load products. Please try again.');
         this.loading.set(false);
+      }
+    });
+  }
+
+  openEditProductDialog(product: Product) {
+    // Set CategoryID before opening dialog
+    product.CategoryID = this.categoryId!;
+
+    const dialogRef = this.dialog.open(EditProductDialogComponent);
+    dialogRef.componentInstance.setEditMode(product);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadProducts();
+      }
+    });
+  }
+
+  openAddProductDialog() {
+    const dialogRef = this.dialog.open(EditProductDialogComponent);
+    dialogRef.componentInstance.setCategoryId(this.categoryId!);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadProducts();
       }
     });
   }

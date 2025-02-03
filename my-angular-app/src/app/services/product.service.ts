@@ -22,8 +22,19 @@ export class ProductService {
     return this.http.post<Product>(this.apiUrl, product);
   }
 
-  updateProduct(id: number, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
+  addProduct(product: Product): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, product);
+  }
+
+  updateProduct(product: Product): Observable<Product> {
+    const url = `${this.apiUrl}/ProductID/${product.ProductID}`;
+    return this.http.patch<Product>(url, {
+      ProductName: product.ProductName,
+      UnitPrice: product.UnitPrice,
+      UnitsInStock: product.UnitsInStock,
+      QuantityPerUnit: product.QuantityPerUnit,
+      Discontinued: product.Discontinued
+    });
   }
 
   deleteProduct(id: number): Observable<void> {
