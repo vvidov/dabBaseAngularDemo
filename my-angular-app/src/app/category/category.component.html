@@ -1,0 +1,87 @@
+<div class="category-container">
+  <div class="header">
+    <h2>Categories</h2>
+    <button mat-raised-button color="primary" (click)="openAddCategoryDialog()">Add Category</button>
+    @if (!loading() && !error()) {
+      <mat-paginator
+        [pageSize]="5"
+        [pageSizeOptions]="[5]"
+        showFirstLastButtons>
+      </mat-paginator>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading categories...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error">
+      <p>{{ error() }}</p>
+      <button (click)="loadCategories()">Try Again</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
+        <!-- Category Name Column -->
+        <ng-container matColumnDef="CategoryName">
+          <th mat-header-cell *matHeaderCellDef class="name-column">Name</th>
+          <td mat-cell *matCellDef="let category" class="name-column">{{ category.CategoryName }}</td>
+        </ng-container>
+
+        <!-- Description Column -->
+        <ng-container matColumnDef="Description">
+          <th mat-header-cell *matHeaderCellDef class="description-column">Description</th>
+          <td mat-cell *matCellDef="let category" class="description-column">{{ category.Description }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let category">
+            <div class="action-buttons">
+              @if (!hasProducts(category.CategoryID)) {
+                <button mat-icon-button color="warn"
+                        (click)="deleteCategory(category); $event.stopPropagation()">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+              <button mat-icon-button color="primary"
+                      (click)="openEditCategoryDialog(category); $event.stopPropagation()">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Expanded Content Column -->
+        <ng-container matColumnDef="expandedDetail">
+          <td mat-cell *matCellDef="let category" [attr.colspan]="displayedColumns.length">
+            @if (category.CategoryID === selectedCategoryId()) {
+              <div class="category-detail"
+                   [@detailExpand]>
+                <app-product [categoryId]="category.CategoryID" [categoryName]="category.CategoryName"></app-product>
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let category; columns: displayedColumns;"
+            class="category-row"
+            [class.expanded-row]="category.CategoryID === selectedCategoryId()"
+            (click)="selectCategory(category)">
+        </tr>
+        <tr mat-row *matRowDef="let category; columns: ['expandedDetail']"
+            class="detail-row"
+            [class.hidden]="category.CategoryID !== selectedCategoryId()">
+        </tr>
+      </table>
+    </div>
+  }
+</div>
