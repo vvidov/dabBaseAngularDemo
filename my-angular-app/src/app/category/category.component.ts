@@ -85,6 +85,8 @@ export class CategoryComponent implements OnInit, AfterViewInit {
         paginator.pageIndex = Math.max(0, this.initialPage - 1);
       }
       paginator.page.subscribe(event => {
+        // Clear selected category when page changes
+        this.selectedCategoryId.set(undefined);
         // Convert 0-based index to 1-based page for URL
         const pageNumber = event.pageIndex + 1;
         this.router.navigate(['/home/categoryPage', pageNumber]);
@@ -103,11 +105,18 @@ export class CategoryComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Store page param for later use
-    const pageParam = this.route.snapshot.params['page'];
-    if (pageParam) {
-      this.initialPage = +pageParam;
-    }
+    this.route.params.subscribe(params => {
+      const pageParam = params['page'];
+      const categoryId = params['id'];
+
+      if (pageParam) {
+        this.initialPage = +pageParam;
+      }
+
+      if (categoryId) {
+        this.selectedCategoryId.set(+categoryId);
+      }
+    });
 
     this.loadCategories();
     this.loadProductCounts();
@@ -121,9 +130,17 @@ export class CategoryComponent implements OnInit, AfterViewInit {
   }
 
   selectCategory(category: Category) {
-    this.selectedCategoryId.set(
-      this.selectedCategoryId() === category.CategoryID ? undefined : category.CategoryID
-    );
+    // Use initialPage if paginator is not yet available
+    const currentPage = this.initialPage ||
+      (this.paginator?.pageIndex !== undefined ? this.paginator.pageIndex + 1 : 1);
+
+    if (this.selectedCategoryId() === category.CategoryID) {
+      this.selectedCategoryId.set(undefined);
+      this.router.navigate(['/home/categoryPage', currentPage]);
+    } else {
+      this.selectedCategoryId.set(category.CategoryID);
+      this.router.navigate(['/home/categoryPage', currentPage, 'category', category.CategoryID]);
+    }
   }
 
   loadCategories() {
