@@ -21,6 +21,30 @@ This is not just another e-commerce application - it's a comprehensive demonstra
 - Showcasing form handling and validation
 - Implementing material design patterns
 
+## 📸 Screenshots
+
+Here's a visual tour of the key features and interfaces:
+
+### Home Dashboard
+![Home Dashboard](docs/images/home-dashboard.png)
+*The main dashboard showcasing the application's modern Material Design interface*
+
+### Category Management
+![Category Management](docs/images/category-management.png)
+*Category listing with pagination, sorting, and CRUD operations*
+
+### Product Management
+![Product Management](docs/images/product-management.png)
+*Product management interface demonstrating nested data relationships*
+
+### Edit Dialog
+![Edit Dialog](docs/images/edit-dialog.png)
+*Material Design dialog for editing entities with form validation*
+
+### Data Grid Features
+![Data Grid Features](docs/images/data-grid.png)
+*Advanced data grid showing filtering, sorting, and pagination capabilities*
+
 ## 🚀 Features
 
 - 📱 Responsive Material Design UI
