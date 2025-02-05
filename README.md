@@ -66,6 +66,7 @@ src/app/
 
 2. **Installation**
    ```bash
+   cd my-angular-app
    npm install
    ```
 
