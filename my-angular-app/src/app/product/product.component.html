@@ -1,0 +1,75 @@
+<div class="product-container">
+  <div class="header">
+    <h2>Products {{ categoryName ? 'for Category ' + categoryName : '' }}</h2>
+    <button mat-raised-button color="primary" (click)="openAddProductDialog()">Add Product</button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error">
+      <p>{{ error() }}</p>
+      <button (click)="loadProducts()">Try Again</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="dataSource">
+        <!-- Product Name Column -->
+        <ng-container matColumnDef="ProductName">
+          <th mat-header-cell *matHeaderCellDef class="name-column">Name</th>
+          <td mat-cell *matCellDef="let product" class="name-column">{{ product.ProductName }}</td>
+        </ng-container>
+
+        <!-- Unit Price Column -->
+        <ng-container matColumnDef="UnitPrice">
+          <th mat-header-cell *matHeaderCellDef class="price-column">Price</th>
+          <td mat-cell *matCellDef="let product" class="price-column">{{ product.UnitPrice | currency }}</td>
+        </ng-container>
+
+        <!-- Units In Stock Column -->
+        <ng-container matColumnDef="UnitsInStock">
+          <th mat-header-cell *matHeaderCellDef class="stock-column">Stock</th>
+          <td mat-cell *matCellDef="let product" class="stock-column">{{ product.UnitsInStock }}</td>
+        </ng-container>
+
+        <!-- Quantity Per Unit Column -->
+        <ng-container matColumnDef="QuantityPerUnit">
+          <th mat-header-cell *matHeaderCellDef class="quantity-column">Quantity Per Unit</th>
+          <td mat-cell *matCellDef="let product" class="quantity-column">{{ product.QuantityPerUnit }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let product">
+            <div class="action-buttons">
+              <button mat-icon-button color="warn"
+                      (click)="deleteProduct(product); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button mat-icon-button color="primary"
+                      (click)="openEditProductDialog(product); $event.stopPropagation()">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    <mat-paginator class="mat-paginator"
+      [pageSize]="5"
+      [pageSizeOptions]="[5]"
+      showFirstLastButtons>
+    </mat-paginator>
+    </div>
+  }
+</div>
