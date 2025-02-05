@@ -19,33 +19,8 @@ import { ProductService } from '../services/product.service';
     MatInputModule,
     ReactiveFormsModule
   ],
-  template: `
-    <h2 mat-dialog-title>{{ isEditMode ? 'Edit' : 'Add' }} Product</h2>
-    <form [formGroup]="productForm" (ngSubmit)="onSave()">
-      <mat-dialog-content>
-        <mat-form-field>
-          <mat-label>Name</mat-label>
-          <input matInput formControlName="ProductName">
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>Unit Price</mat-label>
-          <input matInput type="number" formControlName="UnitPrice">
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>Units In Stock</mat-label>
-          <input matInput type="number" formControlName="UnitsInStock">
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>Quantity Per Unit</mat-label>
-          <input matInput formControlName="QuantityPerUnit">
-        </mat-form-field>
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button mat-button type="button" (click)="onCancel()">Cancel</button>
-        <button mat-button color="primary" type="submit">Save</button>
-      </mat-dialog-actions>
-    </form>
-  `
+  templateUrl: './edit-product-dialog.component.html',
+  styleUrls: ['./edit-product-dialog.component.css']
 })
 export class EditProductDialogComponent {
   isEditMode = false;

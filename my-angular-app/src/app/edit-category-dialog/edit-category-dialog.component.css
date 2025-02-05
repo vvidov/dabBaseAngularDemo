@@ -1,0 +1,24 @@
+
+:host {
+  display: block;
+  width: 520px; /* Adjust the width as needed */
+  height: 320px; /* Adjust the height as needed */
+  margin: 0 16px; /* Add left and right margins */
+}
+.mat-mdc-dialog-content {
+  overflow-y: auto;
+}
+mat-form-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+.mat-mdc-dialog-actions {
+  padding: 16px;
+  margin-bottom: 0;
+}
+.spacer {
+  flex: 1 1 auto;
+}
+button {
+  min-width: 80px;
+}
