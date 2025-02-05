@@ -27,38 +27,33 @@ Here's a visual tour of the key features and interfaces:
 
 ### Home Dashboard
 ![Home Dashboard](docs/images/home-dashboard.png)
-*The main dashboard showcasing the application's modern Material Design interface*
+*The main dashboard with Material Design interface*
 
 ### Category Management
 ![Category Management](docs/images/category-management.png)
-*Category listing with pagination, sorting, and CRUD operations*
+*Category listing with pagination and expandable rows*
 
 ### Product Management
 ![Product Management](docs/images/product-management.png)
-*Product management interface demonstrating nested data relationships*
+*Product management interface with parent-child relationship*
 
 ### Edit Dialog
 ![Edit Dialog](docs/images/edit-dialog.png)
-*Material Design dialog for editing entities with form validation*
-
-### Data Grid Features
-![Data Grid Features](docs/images/data-grid.png)
-*Advanced data grid showing filtering, sorting, and pagination capabilities*
+*Material Design dialog for editing entities*
 
 ## 🚀 Features
 
 - 📱 Responsive Material Design UI
-- 🔄 Nested CRUD Operations
-  - Parent-child relationship management
-  - Bulk operations handling
-  - Optimistic updates
-- 📊 Advanced Data Handling
-  - Server-side pagination
-  - Dynamic filtering
-  - Sorting capabilities
-- 🛣️ Complex Routing Scenarios
-- 🔍 Search Functionality
-- 📝 Form Validation
+- 🔄 Basic CRUD Operations
+  - Category management
+  - Product management
+  - Parent-child relationships
+- 📊 Data Management
+  - Simple pagination
+  - Expandable rows
+  - Nested data views
+- 🛣️ Angular Routing
+- 📝 Material Design Forms
 - 🎨 Material Design Components
 
 ## 🛠️ Tech Stack
