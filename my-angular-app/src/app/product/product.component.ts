@@ -10,6 +10,7 @@ import { EditProductDialogComponent } from '../edit-product-dialog/edit-product-
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-product',
@@ -39,12 +40,28 @@ export class ProductComponent implements OnInit {
   @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
     if (paginator && this.dataSource) {
       this.dataSource.paginator = paginator;
+      paginator.page.subscribe(event => {
+        const categoryPage = this.route.snapshot.params['page'];
+        const categoryId = this.route.snapshot.params['id'];
+        const productPage = event.pageIndex + 1;
+
+        this.router.navigate([
+          '/home/categoryPage',
+          categoryPage,
+          'category',
+          categoryId,
+          'productPage',
+          productPage
+        ]);
+      });
     }
   }
 
   constructor(
     private dialog: MatDialog,
-    private productService: ProductService  // Keep only this declaration
+    private productService: ProductService,  // Keep only this declaration
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.dataSource = new MatTableDataSource<Product>([]);
   }

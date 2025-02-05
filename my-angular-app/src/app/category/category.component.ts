@@ -139,7 +139,15 @@ export class CategoryComponent implements OnInit, AfterViewInit {
       this.router.navigate(['/home/categoryPage', currentPage]);
     } else {
       this.selectedCategoryId.set(category.CategoryID);
-      this.router.navigate(['/home/categoryPage', currentPage, 'category', category.CategoryID]);
+      // Add initial product page parameter
+      this.router.navigate([
+        '/home/categoryPage',
+        currentPage,
+        'category',
+        category.CategoryID,
+        'productPage',
+        1
+      ]);
     }
   }
 
