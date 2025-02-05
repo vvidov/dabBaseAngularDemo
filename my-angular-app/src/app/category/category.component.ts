@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CategoryService } from '../services/category.service';
 import { Category } from '../models/category.model';
@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { ProductService } from '../services/product.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-category',
@@ -61,7 +62,7 @@ import { ProductService } from '../services/product.service';
     ])
   ],
 })
-export class CategoryComponent implements OnInit {
+export class CategoryComponent implements OnInit, AfterViewInit {
   readonly DEFAULT_PAGE_SIZE = 5;
   readonly PAGE_SIZE_OPTIONS = [5];
 
@@ -74,28 +75,49 @@ export class CategoryComponent implements OnInit {
   displayedColumns: string[] = ['CategoryName', 'Description', 'actions'];
   dataSource: MatTableDataSource<Category>;
 
+  private initialPage: number | undefined;
+
   @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
     if (paginator && this.dataSource) {
       this.dataSource.paginator = paginator;
+      // Set initial page if it exists
+      if (this.initialPage !== undefined) {
+        paginator.pageIndex = Math.max(0, this.initialPage - 1);
+      }
+      paginator.page.subscribe(event => {
+        // Convert 0-based index to 1-based page for URL
+        const pageNumber = event.pageIndex + 1;
+        this.router.navigate(['/home/categoryPage', pageNumber]);
+      });
     }
   }
 
   constructor(
     private dialog: MatDialog,
     private categoryService: CategoryService,
-    private productService: ProductService
+    private productService: ProductService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.dataSource = new MatTableDataSource<Category>([]);
   }
 
   ngOnInit(): void {
+    // Store page param for later use
+    const pageParam = this.route.snapshot.params['page'];
+    if (pageParam) {
+      this.initialPage = +pageParam;
+    }
+
     this.loadCategories();
     this.loadProductCounts();
+  }
 
-    // Subscribe to product changes
-    this.productService.productChanges$.subscribe(() => {
-      this.loadProductCounts();
-    });
+  ngAfterViewInit(): void {
+    // Set initial page after view (and paginator) is initialized
+    if (this.initialPage !== undefined && this.paginator) {
+      this.paginator.pageIndex = Math.max(0, this.initialPage - 1);
+    }
   }
 
   selectCategory(category: Category) {
