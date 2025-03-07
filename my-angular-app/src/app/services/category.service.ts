@@ -14,7 +14,7 @@ export class CategoryService {
   categoryAdded$ = this.categoryAdded.asObservable();
 
   getCategories(): Observable<{ value: Array<Category> }> {
-    return this.http.get<{ value: Array<Category> }>(this.apiUrl);
+    return this.http.get<{ value: Array<Category> }>(`${this.apiUrl}?$select=CategoryID,CategoryName,Description`);
   }
 
   addCategory(category: Omit<Category, 'CategoryID'>): Observable<Category> {
